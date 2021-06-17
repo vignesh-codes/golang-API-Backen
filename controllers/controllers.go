@@ -31,7 +31,7 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		fmt.Println(err)
-		es := &models.ErrorHandler{"Bad value", "400"}
+		es := &models.ErrorHandler{"Sorry! Internal Error", "500"}
 		jsonResponse(w, es)
 		return
 	}
@@ -42,7 +42,7 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 		err := db_exec.Scan(&id, &task, &desc, &status, &created_at, &updated_at)
 
 		if err != nil {
-			es := &models.ErrorHandler{"Bad value", "400"}
+			es := &models.ErrorHandler{"Sorry! Internal Error", "500"}
 			jsonResponse(w, es)
 			return
 		}
@@ -89,11 +89,85 @@ func CreateOne(w http.ResponseWriter, r *http.Request) {
 	_, err := database.Exec(`INSERT INTO todo_table (task, description, status) VALUE(?,?,?)`, task, desc, status)
 
 	if err != nil {
-		fmt.Println(err)
+		es := &models.ErrorHandler{"Sorry! Internal Error", "500"}
+		jsonResponse(w, es)
+		return
 	}
 	handler := &models.ResponseHandler{"Success", 200}
 	jsonResponse(w, handler)
 
+}
+
+func DeleteOne(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	_, err := database.Exec(`DELETE FROM todo_table WHERE id = ?`, id)
+
+	if err != nil {
+		es := &models.ErrorHandler{"Sorry! Internal Error", "500"}
+		jsonResponse(w, es)
+		fmt.Println(err)
+		return
+	}
+
+	handler := &models.ResponseHandler{"Success", 201}
+	jsonResponse(w, handler)
+}
+
+func CompleteOne(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	// newStatus := "completeOned"
+	_, err := database.Exec(`UPDATE todo_table SET status = "completed" WHERE id = ?`, id)
+
+	if err != nil {
+
+		es := &models.ErrorHandler{"Sorry! Internal Error", "500"}
+		jsonResponse(w, es)
+		fmt.Println(err)
+		return
+	}
+
+	handler := &models.ResponseHandler{"Success", 201}
+	jsonResponse(w, handler)
+}
+
+func UpdateOne(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	// newStatus := "completeOned"
+	task := r.FormValue("task")
+	desc := r.FormValue("desc")
+
+	taskV, descV := Validate(task, desc)
+
+	if !taskV {
+		fmt.Println("error")
+
+		es := &models.ErrorHandler{"Enter Task Less Than 50 char", "400"}
+		jsonResponse(w, es)
+
+		return
+	}
+	if !descV {
+		fmt.Println("false")
+		es := &models.ErrorHandler{"Enter Description Less Than 256 char", "400"}
+		jsonResponse(w, es)
+		return
+	}
+
+	_, err := database.Exec(`UPDATE todo_table SET task = ?, description = ? WHERE id = ?;`, task, desc, id)
+
+	if err != nil {
+		es := &models.ErrorHandler{"Sorry! Internal Error", "500"}
+		jsonResponse(w, es)
+		fmt.Println(err)
+	}
+
+	jsonResponse(w, "Success")
+	handler := &models.ResponseHandler{"Success", 201}
+	jsonResponse(w, handler)
 }
 
 func jsonResponse(res http.ResponseWriter, data interface{}) {
@@ -127,73 +201,4 @@ func Validate(task string, desc string) (bool, bool) {
 		b = false
 	}
 	return a, b
-}
-func DeleteOne(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	_, err := database.Exec(`DELETE FROM todo_table WHERE id = ?`, id)
-
-	if err != nil {
-		es := &models.ErrorHandler{"Bad value", "400"}
-		jsonResponse(w, es)
-		fmt.Println(err)
-		return
-	}
-
-	handler := &models.ResponseHandler{"Success", 201}
-	jsonResponse(w, handler)
-}
-
-func CompleteOne(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-	// newStatus := "completeOned"
-	_, err := database.Exec(`UPDATE todo_table SET status = "completed" WHERE id = ?`, id)
-
-	if err != nil {
-
-		es := &models.ErrorHandler{"Bad value", "400"}
-		jsonResponse(w, es)
-		fmt.Println(err)
-		return
-	}
-
-	handler := &models.ResponseHandler{"Success", 201}
-	jsonResponse(w, handler)
-}
-
-func UpdateOne(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-	// newStatus := "completeOned"
-	task := r.FormValue("task")
-	desc := r.FormValue("desc")
-
-	taskV, descV := Validate(task, desc)
-
-	if !taskV {
-		fmt.Println("error")
-
-		es := &models.ErrorHandler{"Bad value", "400"}
-		jsonResponse(w, es)
-
-		return
-	}
-	if !descV {
-		fmt.Println("false")
-		es := &models.ErrorHandler{"Bad value", "400"}
-		jsonResponse(w, es)
-		return
-	}
-
-	_, err := database.Exec(`UPDATE todo_table SET task = ?, description = ? WHERE id = ?;`, task, desc, id)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	jsonResponse(w, "Success")
-	handler := &models.ResponseHandler{"Success", 201}
-	jsonResponse(w, handler)
 }
