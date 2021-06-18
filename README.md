@@ -2,7 +2,7 @@
 
 ### GOLANG Todo Web Api with Node project Struct
 
-### Do Git Clone and if you wanna create new go.mod delete the existing .mod file and then 
+ Do Git Clone and if you wanna create new go.mod delete the existing .mod file and then 
 ```
 go mod init todo/v1
 ```
