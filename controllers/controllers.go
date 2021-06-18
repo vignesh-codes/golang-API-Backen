@@ -163,7 +163,7 @@ func UpdateOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := database.Exec(`UPDATE todo_table SET task = ?, description = ? WHERE id = ?;`, task, desc, id)
+	_, err := database.Exec(`UPDATE todo_table SET task = ?, description = ? WHERE id = ? and status != "completed";`, task, desc, id)
 
 	if err != nil {
 		es := &models.ErrorHandler{"Sorry! Internal Error", "500"}
