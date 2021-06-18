@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//Setting up variables that are used in methods
 var (
 	id         int
 	task       string
@@ -21,6 +22,7 @@ var (
 	database   = config.Database()
 )
 
+//Get the list of tasks from DB
 func GetAll(w http.ResponseWriter, r *http.Request) {
 	// sortTime := r.URL.Query().Get("valB")
 
@@ -65,6 +67,7 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//Create a new task
 func CreateOne(w http.ResponseWriter, r *http.Request) {
 
 	task := r.FormValue("task")
@@ -98,6 +101,7 @@ func CreateOne(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//Delete the task based on the given id
 func DeleteOne(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -115,6 +119,7 @@ func DeleteOne(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, handler)
 }
 
+//Change the status to completed based on given ID
 func CompleteOne(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -133,6 +138,7 @@ func CompleteOne(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, handler)
 }
 
+// Update only one row based on given id
 func UpdateOne(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -170,6 +176,7 @@ func UpdateOne(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, handler)
 }
 
+//Setting up to push result in json format
 func jsonResponse(res http.ResponseWriter, data interface{}) {
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
 
@@ -181,6 +188,7 @@ func jsonResponse(res http.ResponseWriter, data interface{}) {
 	fmt.Fprintf(res, string(payload))
 }
 
+//Setting up for checking errors
 func error_check(res http.ResponseWriter, err error) bool {
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -188,6 +196,8 @@ func error_check(res http.ResponseWriter, err error) bool {
 	}
 	return false
 }
+
+//Validate the task and desciption inputs
 func Validate(task string, desc string) (bool, bool) {
 	a := true
 	b := true

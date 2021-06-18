@@ -58,12 +58,13 @@ func Database() *sql.DB {
 		fmt.Println(err)
 	}
 
+	//creating todo table. Can use ENUM for status column having three possible values - Not_started, In_progress, Completed
 	_, err = database.Exec(`
 		CREATE TABLE todo_table (
 		    id INT AUTO_INCREMENT,
 		    task TEXT NOT NULL,
 		    description TEXT NOT NULL,
-			status TEXT NOT NULL,
+			status TEXT NOT NULL, 
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		    PRIMARY KEY (id)
